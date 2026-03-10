@@ -3,126 +3,125 @@ from PyPDF2 import PdfMerger, PdfReader, PdfWriter
 import pdfplumber
 import io
 
-# 1. إعدادات الصفحة وهوية الموقع
-st.set_page_config(page_title="PDF Pro - Advanced Tools", layout="wide", page_icon="🚀")
+# 1. إعدادات الصفحة
+st.set_page_config(page_title="PDF Elite - All-in-One Tools", layout="wide", page_icon="💎")
 
-# 2. إضافة لمسات CSS لتحسين الشكل (جماليات الموقع)
+# 2. تصميم CSS احترافي (Modern UI)
 st.markdown("""
     <style>
-    /* تغيير خلفية الموقع وتنسيق الخطوط */
-    .main {
-        background-color: #0e1117;
+    /* تنسيق الخلفية العامة */
+    .stApp {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     }
+    
+    /* تصميم البطاقات (Cards) */
+    .tool-card {
+        background-color: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: transform 0.3s ease;
+        border: 1px solid #e1e4e8;
+        margin-bottom: 20px;
+    }
+    
+    .tool-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        border-color: #007bff;
+    }
+
+    .tool-icon {
+        font-size: 50px;
+        margin-bottom: 15px;
+    }
+
+    /* تنسيق الأزرار */
     .stButton>button {
-        width: 100%;
-        border-radius: 10px;
-        height: 3em;
-        background-color: #007bff;
+        background: linear-gradient(90deg, #007bff 0%, #00d4ff 100%);
         color: white;
-        font-weight: bold;
+        border-radius: 30px;
         border: none;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        background-color: #0056b3;
-        border: none;
-        transform: scale(1.02);
-    }
-    .css-1kyxreq {
-        justify-content: center;
-    }
-    /* تنسيق العناوين */
-    h1 {
-        color: #00d4ff;
-        text-align: center;
-        font-family: 'Arial', sans-serif;
-    }
-    .st-emotion-cache-16idsys p {
-        font-size: 1.1rem;
-        text-align: center;
+        padding: 10px 25px;
+        font-weight: 600;
+        letter-spacing: 1px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. القائمة الجانبية بشكل أنيق
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/337/337946.png", width=100)
-    st.title("PDF Master")
-    st.markdown("---")
-    choice = st.radio("CHOOSE A TOOL:", 
-        ["✨ Merge PDF", "✂️ Split PDF", "🔒 Protect PDF", "🔍 Extract Text"])
-    st.markdown("---")
-    st.write("Developed by **Bandar**")
+# 3. الهيدر (العنوان الرئيسي)
+st.markdown("<h1 style='text-align: center; color: #1e3a8a; font-size: 3rem;'>💎 PDF Elite</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #4b5563; font-size: 1.2rem;'>Fast, Secure, and Professional PDF Tools</p>", unsafe_allow_html=True)
+st.markdown("---")
 
-# --- وظيفة دمج الملفات ---
-if choice == "✨ Merge PDF":
-    st.markdown("<h1>✨ Merge Your PDF Files</h1>", unsafe_allow_html=True)
-    st.write("Combine multiple documents into one professional file instantly.")
-    
-    files = st.file_uploader("", type="pdf", accept_multiple_files=True)
-    
-    if files:
-        st.info(f"You have selected {len(files)} files.")
-        if st.button("PROCEED & MERGE"):
-            with st.spinner('Working on it...'):
-                merger = PdfMerger()
-                for f in files:
-                    merger.append(f)
-                output = io.BytesIO()
-                merger.write(output)
-                st.success("Your merged PDF is ready!")
-                st.download_button("📥 Download Merged File", output.getvalue(), "merged_pro.pdf")
+# 4. الحالة الافتراضية للتنقل (بدون قائمة جانبية بدائية)
+if 'page' not in st.session_state:
+    st.session_state.page = 'home'
 
-# --- وظيفة تقسيم الملفات ---
-elif choice == "✂️ Split PDF":
-    st.markdown("<h1>✂️ Split PDF Pages</h1>", unsafe_allow_html=True)
-    file = st.file_uploader("Upload the file you want to split", type="pdf")
-    if file:
+def go_home():
+    st.session_state.page = 'home'
+
+# --- الصفحة الرئيسية (توزيع الأدوات) ---
+if st.session_state.page == 'home':
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""<div class='tool-card'><div class='tool-icon'>📑</div><h3>Merge PDF</h3><p>Combine multiple files into one document.</p></div>""", unsafe_allow_html=True)
+        if st.button("Open Merge Tool"):
+            st.session_state.page = 'merge'
+            st.rerun()
+
+    with col2:
+        st.markdown("""<div class='tool-card'><div class='tool-icon'>✂️</div><h3>Split PDF</h3><p>Separate pages into individual files.</p></div>""", unsafe_allow_html=True)
+        if st.button("Open Split Tool"):
+            st.session_state.page = 'split'
+            st.rerun()
+
+    with col3:
+        st.markdown("""<div class='tool-card'><div class='tool-icon'>🔒</div><h3>Protect PDF</h3><p>Secure your documents with a password.</p></div>""", unsafe_allow_html=True)
+        if st.button("Open Lock Tool"):
+            st.session_state.page = 'lock'
+            st.rerun()
+
+# --- صفحة دمج الملفات ---
+elif st.session_state.page == 'merge':
+    st.button("⬅ Back to Menu", on_click=go_home)
+    st.title("📑 Merge PDF Files")
+    files = st.file_uploader("Upload PDF files", type="pdf", accept_multiple_files=True)
+    if files and st.button("Start Merging"):
+        merger = PdfMerger()
+        for f in files: merger.append(f)
+        out = io.BytesIO()
+        merger.write(out)
+        st.success("Documents Merged Successfully!")
+        st.download_button("📥 Download Result", out.getvalue(), "merged_elite.pdf")
+
+# --- صفحة تقسيم الملفات ---
+elif st.session_state.page == 'split':
+    st.button("⬅ Back to Menu", on_click=go_home)
+    st.title("✂️ Split PDF Pages")
+    file = st.file_uploader("Upload PDF", type="pdf")
+    if file and st.button("Split Now"):
         reader = PdfReader(file)
-        num_pages = len(reader.pages)
-        st.write(f"This PDF has **{num_pages}** pages.")
-        
-        if st.button("SPLIT ALL PAGES"):
-            for i in range(num_pages):
-                writer = PdfWriter()
-                writer.add_page(reader.pages[i])
-                out = io.BytesIO()
-                writer.write(out)
-                st.download_button(f"Download Page {i+1}", out.getvalue(), f"page_{i+1}.pdf")
-
-# --- وظيفة حماية الملف ---
-elif choice == "🔒 Protect PDF":
-    st.markdown("<h1>🔒 Secure Your PDF</h1>", unsafe_allow_html=True)
-    file = st.file_uploader("Upload PDF to add password", type="pdf")
-    password = st.text_input("Set your secret password", type="password")
-    
-    if file and password:
-        if st.button("ENCRYPT FILE"):
-            reader = PdfReader(file)
+        for i in range(len(reader.pages)):
             writer = PdfWriter()
-            for page in reader.pages:
-                writer.add_page(page)
-            writer.encrypt(password)
+            writer.add_page(reader.pages[i])
             out = io.BytesIO()
             writer.write(out)
-            st.success("File encrypted successfully!")
-            st.download_button("📥 Download Protected PDF", out.getvalue(), "secure_file.pdf")
+            st.download_button(f"Page {i+1}", out.getvalue(), f"p_{i+1}.pdf")
 
-# --- وظيفة استخراج النصوص ---
-elif choice == "🔍 Extract Text":
-    st.markdown("<h1>🔍 PDF Text Extractor</h1>", unsafe_allow_html=True)
-    file = st.file_uploader("Upload PDF to copy text", type="pdf")
-    if file:
-        with pdfplumber.open(file) as pdf:
-            all_text = ""
-            for page in pdf.pages:
-                text = page.extract_text()
-                if text:
-                    all_text += text + "\n"
-        
-        if all_text:
-            st.text_area("Content:", all_text, height=300)
-            st.download_button("📥 Save as Text File", all_text, "text_content.txt")
-        else:
-            st.error("Could not find any text in this file.")
+# --- صفحة حماية الملفات ---
+elif st.session_state.page == 'lock':
+    st.button("⬅ Back to Menu", on_click=go_home)
+    st.title("🔒 Protect PDF")
+    file = st.file_uploader("Upload PDF", type="pdf")
+    pwd = st.text_input("Set Password", type="password")
+    if file and pwd and st.button("Lock File"):
+        writer = PdfWriter()
+        for p in PdfReader(file).pages: writer.add_page(p)
+        writer.encrypt(pwd)
+        out = io.BytesIO()
+        writer.write(out)
+        st.download_button("📥 Download Protected PDF", out.getvalue(), "locked.pdf")
 
