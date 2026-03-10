@@ -3,72 +3,126 @@ from PyPDF2 import PdfMerger, PdfReader, PdfWriter
 import pdfplumber
 import io
 
-# Page Configuration
-st.set_page_config(page_title="Smart PDF Tools", layout="wide")
+# 1. إعدادات الصفحة وهوية الموقع
+st.set_page_config(page_title="PDF Pro - Advanced Tools", layout="wide", page_icon="🚀")
 
-# Sidebar Navigation
-st.sidebar.title("🛠️ PDF Toolbox")
-choice = st.sidebar.radio("Select a Tool:", 
-    ["Merge PDF", "Split PDF", "Protect PDF (Password)", "Extract Text", "About"])
+# 2. إضافة لمسات CSS لتحسين الشكل (جماليات الموقع)
+st.markdown("""
+    <style>
+    /* تغيير خلفية الموقع وتنسيق الخطوط */
+    .main {
+        background-color: #0e1117;
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 10px;
+        height: 3em;
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+        border: none;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #0056b3;
+        border: none;
+        transform: scale(1.02);
+    }
+    .css-1kyxreq {
+        justify-content: center;
+    }
+    /* تنسيق العناوين */
+    h1 {
+        color: #00d4ff;
+        text-align: center;
+        font-family: 'Arial', sans-serif;
+    }
+    .st-emotion-cache-16idsys p {
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-# --- 1. MERGE PDF ---
-if choice == "Merge PDF":
-    st.title("📄 Merge Multiple PDFs")
-    st.write("Combine several PDF files into one single document.")
-    files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True)
-    if files and st.button("Merge Now"):
-        merger = PdfMerger()
-        for f in files:
-            merger.append(f)
-        output = io.BytesIO()
-        merger.write(output)
-        st.success("Done!")
-        st.download_button("Download Merged PDF", output.getvalue(), "merged.pdf")
+# 3. القائمة الجانبية بشكل أنيق
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/337/337946.png", width=100)
+    st.title("PDF Master")
+    st.markdown("---")
+    choice = st.radio("CHOOSE A TOOL:", 
+        ["✨ Merge PDF", "✂️ Split PDF", "🔒 Protect PDF", "🔍 Extract Text"])
+    st.markdown("---")
+    st.write("Developed by **Bandar**")
 
-# --- 2. SPLIT PDF ---
-elif choice == "Split PDF":
-    st.title("✂️ Split PDF Pages")
-    st.write("Extract each page of a PDF into a separate file.")
-    file = st.file_uploader("Upload PDF", type="pdf")
-    if file and st.button("Split Pages"):
+# --- وظيفة دمج الملفات ---
+if choice == "✨ Merge PDF":
+    st.markdown("<h1>✨ Merge Your PDF Files</h1>", unsafe_allow_html=True)
+    st.write("Combine multiple documents into one professional file instantly.")
+    
+    files = st.file_uploader("", type="pdf", accept_multiple_files=True)
+    
+    if files:
+        st.info(f"You have selected {len(files)} files.")
+        if st.button("PROCEED & MERGE"):
+            with st.spinner('Working on it...'):
+                merger = PdfMerger()
+                for f in files:
+                    merger.append(f)
+                output = io.BytesIO()
+                merger.write(output)
+                st.success("Your merged PDF is ready!")
+                st.download_button("📥 Download Merged File", output.getvalue(), "merged_pro.pdf")
+
+# --- وظيفة تقسيم الملفات ---
+elif choice == "✂️ Split PDF":
+    st.markdown("<h1>✂️ Split PDF Pages</h1>", unsafe_allow_html=True)
+    file = st.file_uploader("Upload the file you want to split", type="pdf")
+    if file:
         reader = PdfReader(file)
-        for i in range(len(reader.pages)):
+        num_pages = len(reader.pages)
+        st.write(f"This PDF has **{num_pages}** pages.")
+        
+        if st.button("SPLIT ALL PAGES"):
+            for i in range(num_pages):
+                writer = PdfWriter()
+                writer.add_page(reader.pages[i])
+                out = io.BytesIO()
+                writer.write(out)
+                st.download_button(f"Download Page {i+1}", out.getvalue(), f"page_{i+1}.pdf")
+
+# --- وظيفة حماية الملف ---
+elif choice == "🔒 Protect PDF":
+    st.markdown("<h1>🔒 Secure Your PDF</h1>", unsafe_allow_html=True)
+    file = st.file_uploader("Upload PDF to add password", type="pdf")
+    password = st.text_input("Set your secret password", type="password")
+    
+    if file and password:
+        if st.button("ENCRYPT FILE"):
+            reader = PdfReader(file)
             writer = PdfWriter()
-            writer.add_page(reader.pages[i])
+            for page in reader.pages:
+                writer.add_page(page)
+            writer.encrypt(password)
             out = io.BytesIO()
             writer.write(out)
-            st.download_button(f"Download Page {i+1}", out.getvalue(), f"page_{i+1}.pdf")
+            st.success("File encrypted successfully!")
+            st.download_button("📥 Download Protected PDF", out.getvalue(), "secure_file.pdf")
 
-# --- 3. PROTECT PDF ---
-elif choice == "Protect PDF (Password)":
-    st.title("🔒 Protect PDF with Password")
-    file = st.file_uploader("Upload PDF to Encrypt", type="pdf")
-    password = st.text_input("Enter Password", type="password")
-    if file and password and st.button("Encrypt Now"):
-        reader = PdfReader(file)
-        writer = PdfWriter()
-        for page in reader.pages:
-            writer.add_page(page)
-        writer.encrypt(password)
-        out = io.BytesIO()
-        writer.write(out)
-        st.success("File Protected!")
-        st.download_button("Download Protected PDF", out.getvalue(), "protected.pdf")
-
-# --- 4. EXTRACT TEXT ---
-elif choice == "Extract Text":
-    st.title("🔍 Extract Text from PDF")
-    st.write("Copy the text content from your PDF files.")
-    file = st.file_uploader("Upload PDF", type="pdf")
+# --- وظيفة استخراج النصوص ---
+elif choice == "🔍 Extract Text":
+    st.markdown("<h1>🔍 PDF Text Extractor</h1>", unsafe_allow_html=True)
+    file = st.file_uploader("Upload PDF to copy text", type="pdf")
     if file:
         with pdfplumber.open(file) as pdf:
             all_text = ""
             for page in pdf.pages:
-                all_text += page.extract_text() + "\n"
-        st.text_area("Extracted Text:", all_text, height=300)
-        st.download_button("Download as TXT", all_text, "extracted_text.txt")
+                text = page.extract_text()
+                if text:
+                    all_text += text + "\n"
+        
+        if all_text:
+            st.text_area("Content:", all_text, height=300)
+            st.download_button("📥 Save as Text File", all_text, "text_content.txt")
+        else:
+            st.error("Could not find any text in this file.")
 
-# --- ABOUT ---
-elif choice == "About":
-    st.title("About Smart PDF Tools")
-    st.info("A fast, secure, and free tool for all your PDF needs. Created by Bandar.")
